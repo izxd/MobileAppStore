@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html style="height: 100%;">
+
+	<head>
+		<meta charset="utf-8">
+		<title>MobileApp</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--标准mui.css-->
+		<link rel="stylesheet" href="./css/mui.min.css">
+		<!-- 新增自定义 add.css -->
+		<link rel="stylesheet" type="text/css" href="css/add.css"/>
+	</head>
+
+	<body style="height: 100%;">
+
+		<header class="mui-bar mui-bar-nav add-header-bar">
+			<h1 class="mui-title add-title">订单</h1>
+			<a class="mui-icon mui-icon mui-icon-more mui-pull-right add-title" href="#popover" id="openPopover"></a>
+		</header>
+
+		<nav class="mui-bar mui-bar-tab">
+			<a class="mui-tab-item mui-active" href="#tabbar">
+				<span class="mui-icon mui-icon-home"></span>
+				<span class="mui-tab-label">订单</span>
+			</a>
+			<a class="mui-tab-item" href="#tabbar-with-chat">
+				<span class="mui-icon mui-icon-email"></span>
+				<span class="mui-tab-label">商品</span>
+			</a>
+			<a class="mui-tab-item" href="#tabbar-with-contact">
+				<span class="mui-icon mui-icon-contact"></span>
+				<span class="mui-tab-label">通知</span>
+			</a>
+			<a class="mui-tab-item" href="#tabbar-with-map">
+				<span class="mui-icon mui-icon-gear"></span>
+				<span class="mui-tab-label">设置</span>
+			</a>
+		</nav>
+
+		<div class="mui-content" style="height: 100%;">
+			<div id="tabbar" class="mui-control-content mui-active">
+				<div>订单页面</div>
+			</div>
+			<div id="tabbar-with-chat"  style="height: 100%;" class="mui-control-content">
+				<div>商品页面</div>
+				<!--下拉刷新容器-->
+				<div id="pullrefresh" style="height: 100%;" class="mui-content mui-scroll-wrapper">
+					<div class="mui-scroll">
+						<!--数据列表-->
+						<ul class="mui-table-view mui-table-view-chevron"></ul>
+					</div>
+				</div>
+			</div>
+			<div id="tabbar-with-contact" class="mui-control-content">
+				<div>通知页面</div>
+			</div>
+			<div id="tabbar-with-map" class="mui-control-content">
+				<div>设置页面</div>
+			</div>
+		</div>
+
+		<div id="popover" class="mui-popover">
+			<ul class="mui-table-view">
+				<li class="mui-table-view-cell">
+					<a href="#">新增</a>
+				</li>
+			</ul>
+		</div>
+		
+	</body>
+	<script src="./js/mui.min.js"></script>
+	<script>
+		
+		mui.init({
+			swipeBack: true, //启用右滑关闭功能
+			statusBarBackground: '#df3031', //设置状态栏颜色,仅iOS可用
+			pullRefresh: { // 配置用户手势上拉加载
+				container: '#pullrefresh', // 那个容器进行加载数据
+				up: { // 操作 up 表示上拉
+					auto:true,
+					contentrefresh: '正在加载...',
+					callback: pullupRefresh // 调用函数 pullupRefresh
+				}
+			}
+		});
+		
+		var count = 0; // 标记是否加载完全部数据
+		var isOk = 0; // 模拟加载完数据的标志
+		/**
+		 * @breif 用户上拉加载调用函数
+		 * @param null
+		 * @return null
+		 */
+		function pullupRefresh() {
+			setTimeout(function() {
+				
+				AjaxGetData(); // 加载数据函数
+				console.log(count);
+				console.log(isOk);
+				mui('#pullrefresh').pullRefresh().endPullupToRefresh((count == 1)); // 参数为true代表没有更多数据了。
+				
+			}, 1500);
+		}
+
+		/**
+		 * @breif 加载数据函数
+		 * @param null
+		 * @return null
+		 */
+		function AjaxGetData()
+		{
+			mui.ajax("./js/TestData.json",{
+				async:false,
+				dataType:"json",
+				timeout:300000,
+				type:"GET",
+				success:function(res){
+					
+					addData(res); // 服务器获取数据处理函数
+					
+					// 以下部分是我模拟加载完全部数据进行的逻辑控制，实际情况可改为 代码下方注释部分
+					if(isOk == 3){ 
+						count = 1;
+					}
+					isOk++;
+					
+					/***
+					if(res.row.length == 0){ 数据返回0，肯定是没数据了
+						count = 1;
+					}
+					***/
+					
+				},
+				error:function(err){
+					console.log(JSON.stringify(err));
+				}
+			})
+		}
+
+		/**
+		 * @breif 服务器获取数据处理函数
+		 * @param null
+		 * @return null
+		 */
+		function addData(data) {
+			
+			console.log(data);
+			
+			var table = document.body.querySelector('.mui-table-view');
+			var cells = document.body.querySelectorAll('.mui-table-view-cell');
+			
+			for(var i = 0; i < data.row.length; i++) {
+				var li = document.createElement('li');
+				li.className = 'mui-table-view-cell';
+				li.innerHTML = '<a class="mui-navigate-right">商品 ' + data.row[i].name + '</a>';
+				li.setAttribute("proId",data.row[i].id); // 存储商品id,便于页间传值
+				//下拉刷新，新纪录插到最前面；
+				table.insertBefore(li, table.firstChild);
+			}
+		}
+		
+		/**
+		 * @breif mui生命周期函数
+		 * @param null
+		 * @return null
+		 */
+		mui.ready(function() {
+ 
+			/* 1.根据底部标签点击的标签更换标题 */
+			var title = mui("h1.mui-title"); // 获取标题栏标题
+			
+			mui('.mui-bar.mui-bar-tab').on('tap', 'a', function(e) {
+				title[0].innerHTML = this.lastElementChild.innerText; // 将当前页名更新标题
+			});
+			
+			/* 2.点击条目跳转商品详情页面 */
+			mui('.mui-table-view').on('tap','li',function(e){
+				
+				console.log(this.getAttribute("proId"));
+				
+				mui.openWindow({
+				    url:"info.html?proId=" + this.getAttribute("proId"),
+				    id:"info.html",
+				    createNew:false,//是否重复创建同样id的webview，默认为false:不重复创建，直接显示
+				})
+				
+			});
+			
+		});
+	</script>
+
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>MobileApp</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--标准mui.css-->
+		<link rel="stylesheet" href="./css/mui.min.css">
+		<!-- 新增自定义 add.css -->
+		<link rel="stylesheet" type="text/css" href="css/add.css"/>
+	</head>
+	<body>
+		
+		<header class="mui-bar mui-bar-nav add-header-bar">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left add-title"></a>
+			<h1 class="mui-title add-title">产品详情</h1>
+		</header>
+		
+		<div class="mui-content">
+			
+		</div>
+		
+	</body>
+	<script src="./js/mui.min.js"></script>
+	<script>
+		
+		mui.init({
+			swipeBack: true //启用右滑关闭功能
+		});
+
+		mui.ready(function() {
+		
+			var proId = getUrlParam("proId"); // 获取产品id
+			
+			console.log(proId);
+			
+			
+		});
+		
+		/**
+		 * @breif 得到传值过来的所需要的参数
+		 * @param string param1 需要查询的键
+		 * @return null
+		 */
+		function getUrlParam(param1){
+			
+			var searchArr = location.search.split("?"); // 获取查询字符串数组
+			
+			if(searchArr.length > 1){ 
+				
+				var paramArr = searchArr[1].split("&"); // 分割参数
+				
+				for(var p in paramArr){
+					var pKey = paramArr[p].split("=")[0];
+					var pValue = paramArr[p].split("=")[1];
+					
+					if(pKey == param1){
+						return pValue;
+					}
+				}
+			}
+			
+			return null;
+			
+		}
+	</script>
+</html>
