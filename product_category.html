@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>MobileApp</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<!--标准mui.css-->
+		<link rel="stylesheet" href="./css/mui.min.css">
+		<!-- 新增自定义 add.css -->
+		<link rel="stylesheet" type="text/css" href="css/add.css"/>
+	</head>
+	<body>
+		
+		<header class="mui-bar mui-bar-nav add-header-bar">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left add-title"></a>
+			<h1 class="mui-title add-title">产品类别</h1>
+		</header>
+		
+		<div class="mui-content">
+			<ul class="mui-table-view mui-table-view-chevron"></ul>
+		</div>
+		
+	</body>
+	<script src="./js/mui.min.js"></script>
+	<script>
+		mui.init({
+			swipeBack: true, //启用右滑关闭功能
+		});
+
+		/**
+		 * @breif 加载产品类别数据函数
+		 * @param null
+		 * @return null
+		 */
+		function AjaxGetData()
+		{
+			mui.ajax("./js/TestData.json",{
+				async:false,
+				dataType:"json",
+				timeout:300000,
+				type:"GET",
+				success:function(res){
+					
+					addData(res); // 服务器获取数据处理函数
+					
+				},
+				error:function(err){
+					console.log(JSON.stringify(err));
+				}
+			})
+		}
+
+		/**
+		 * @breif 服务器获取产品类别处理函数
+		 * @param null
+		 * @return null
+		 */
+		function addData(data) { 
+			
+			var table = document.body.querySelector('.mui-table-view');
+			var cells = document.body.querySelectorAll('.mui-table-view-cell');
+			
+			for(var i = 0; i < data.row.length; i++) {
+				var li = document.createElement('li');
+				li.className = 'mui-table-view-cell';
+				li.innerHTML = '<a class="mui-navigate-right">模拟类别 ' + data.row[i].name + '</a>';
+				li.setAttribute("categoryId",data.row[i].id); // 存储产品类别id,便于页间传值
+				li.setAttribute("categoryName",data.row[i].name); // 存储产品类别名,便于页间传值
+				//下拉刷新，新纪录插到最前面；
+				table.insertBefore(li, table.firstChild);
+			}
+		}
+
+		mui.ready(function() {
+
+			AjaxGetData(); // 调用后台获取产品类别数据函数
+			
+			/* 点击条目返回产品添加 */
+			mui('.mui-table-view').on('tap','li',function(e){
+				 
+				localStorage.setItem("localstorage_category",this.getAttribute("categoryId") + "|" + this.getAttribute("categoryName")); // 本地存储类别id和name 返回之后在产品添加页面将读取该值渲染到dom上
+				
+				mui.back(); // 返回产品添加页面
+				
+			});
+			
+		});
+	</script>
+</html>

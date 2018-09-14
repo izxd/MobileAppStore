@@ -180,9 +180,9 @@
 				
 				console.log(this.getAttribute("proId"));
 				
-				mui.openWindow({
-				    url:"info.html?proId=" + this.getAttribute("proId"),
-				    id:"info.html",
+				mui.openWindow({ 
+				    url:"product_add.html?proId=" + this.getAttribute("proId"),
+				    id:"product_add.html",
 				    createNew:false,//是否重复创建同样id的webview，默认为false:不重复创建，直接显示
 				})
 				
