@@ -8,6 +8,8 @@
 		<meta name="apple-mobile-web-app-status-bar-style" content="black">
 		<!--标准mui.css-->
 		<link rel="stylesheet" href="./css/mui.min.css">
+		<link rel="stylesheet" href="css/mui.picker.css" />
+		<link rel="stylesheet" type="text/css" href="css/mui.poppicker.css"/>
 		<!-- 新增自定义 add.css -->
 		<link rel="stylesheet" type="text/css" href="css/add.css"/>
 	</head>
@@ -33,7 +35,7 @@
 						<i class="mui-pull-right update">其他</i>
 					</a>
 				</li>
-				<li class="mui-table-view-cell mui-media">
+				<li class="mui-table-view-cell mui-media" id='showUserPicker'>
 					<a class="mui-navigate-right">
 						<label>成本使用的货币种类</label>
 						<i class="mui-pull-right update">人民币</i>
@@ -77,6 +79,8 @@
 		
 	</body>
 	<script src="./js/mui.min.js"></script>
+	<script src="js/mui.picker.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/mui.poppicker.js" type="text/javascript" charset="utf-8"></script>
 	<script>
 		
 		mui.init({
@@ -85,8 +89,10 @@
 
 		mui.ready(function() {
 		
+			/* 前页传来的数据  */
 			var proId = getUrlParam("proId"); // 获取产品id
 			
+			/* 后页传回的数据 */
 			if(localStorage.getItem("localstorage_category") != null){ // 说明去类别界面选择了类别
 				
 				var localstorage_category = localStorage.getItem("localstorage_category"); // 获取后一页选择的产品类别内容
@@ -113,6 +119,27 @@
 				})
 				
 			});
+			
+			/* picker控件 选择货币 */
+			var userPicker = new mui.PopPicker();
+			
+			userPicker.setData([{
+				value: 'rmb',
+				text: '人民币'
+			}, {
+				value: 'dol',
+				text: '美元'
+			}]);
+			
+			var showUserPickerButton = document.getElementById('showUserPicker');
+			
+			showUserPickerButton.addEventListener('tap', function(event) {
+				userPicker.show(function(items) {
+					var dom_category = mui(".mui-table-view li#showUserPicker a i")[0]; // 获取dom
+					dom_category.innerText = items[0].text;
+					dom_category.setAttribute("coin_id",items[0].value)
+				});
+			}, false);
 			
 		});
 		
